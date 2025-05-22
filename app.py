@@ -5,7 +5,7 @@ from PIL import Image
 import os
 
 # Load model and label encoder once
-model = pickle.load(open('model.pkl', 'rb'))
+model = pickle.load(open('crop_prediction_model.pkl', 'rb'))
 label_encoder = pickle.load(open('label_encoder.pkl', 'rb'))
 
 st.title("Farmcast Crop Prediction")
