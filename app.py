@@ -2,11 +2,11 @@ from flask import Flask, render_template, request
 import numpy as np
 import pickle
 
-app = Flask(_name_)
+app = Flask(__name__)
 
 # Load model and label encoder
-model = pickle.load(open('model.pkl', 'rb'))
-label_encoder = pickle.load(open('label_encoder.pkl', 'rb'))
+model = pickle.load(open('/content/model.pkl', 'rb'))
+label_encoder = pickle.load(open('/content/label_encoder.pkl', 'rb'))
 
 @app.route('/')
 def home():
@@ -34,5 +34,5 @@ def predict():
     except Exception as e:
         return f"Error: {e}"
 
-if _name_ == '_main_':
+if __name__ == '_main_':
     app.run(debug=True)
