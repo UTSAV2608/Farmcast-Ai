@@ -7,7 +7,7 @@ import glob
 import pyttsx3
 
 # Set page config
-st.set_page_config(page_title="🌾 Farmcast - Crop Predictor", page_icon="🌱")
+st.set_page_config(page_title=" FarmCast Logo FARMCAST AI", page_icon="🌱")
 
 # Background Image Setup using Custom CSS
 def set_background(image_file):
