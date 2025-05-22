@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Recommended Crop - FarmCast AI</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #eafaf1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .card {
+            background: #ffffff;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            max-width: 500px;
+            text-align: center;
+        }
+
+        .card h1 {
+            color: #28a745;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .card h2 {
+            font-size: 24px;
+            color: #222;
+            margin-bottom: 20px;
+        }
+
+        .crop-image {
+            width: 100%;
+            height: auto;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            color: #fff;
+            background-color: #28a745;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn:hover {
+            background-color: #218838;
+        }
+
+        .icon {
+            font-size: 18px;
+        }
+
+        .logo {
+            width: 50px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <img src="{{ url_for('static', filename='logo.png') }}" alt="FarmCast Logo" style="width: 100px; height: auto; margin-bottom: 10px;">
+        <h1 style="color: #28a745; font-size: 22px; margin-top: 5px;">FarmCast AI</h1>
+
+        <h1>🌾 Recommended Crop:</h1>
+        <h3><strong>{{ crop.upper() }}</strong></h3>
+
+        {% if image %}
+        <img src="{{ url_for('static', filename='images/' + image) }}" alt="{{ crop }}" class="crop-image">
+        {% endif %}
+
+        <!-- Auto play audio -->
+        <audio id="crop-audio" autoplay>
+            <source src="{{ url_for('static', filename='audio/' + crop.lower() + '.mp3') }}" type="audio/mpeg">
+            Your browser does not support the audio element.
+        </audio>
+
+        <div class="buttons">
+            <button class="btn" onclick="speakCrop()">
+                🔊 Hear it
+            </button>
+            <a href="/" class="btn">
+                ⬅️ Predict Again
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // Fallback to browser voice if audio fails
+        function speakCrop() {
+            const crop = "{{ crop }}";
+            const utterance = new SpeechSynthesisUtterance("The recommended crop is " + crop);
+            utterance.lang = "en-US";
+            speechSynthesis.speak(utterance);
+        }
+    </script>
+</body>
+</html>
