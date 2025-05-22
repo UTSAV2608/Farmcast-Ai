@@ -6,40 +6,35 @@ import os
 import pyttsx3
 import glob
 
-# Set full page layout
+# Configure Streamlit page
 st.set_page_config(layout="centered", page_title="Farmcast AI")
 
-# Background image from URL
-bg_url = "https://www.canowindraphoenix.com.au/wp-content/uploads/2020/05/samll-farms.jpeg"
-
-# Inject custom CSS
+# Inject background image & glass effect CSS
 st.markdown(f"""
     <style>
     .stApp {{
-        background: url('{bg_url}') no-repeat center center fixed;
+        background: url('https://www.canowindraphoenix.com.au/wp-content/uploads/2020/05/samll-farms.jpeg') no-repeat center center fixed;
         background-size: cover;
     }}
     .form-container {{
-        background-color: rgba(0, 0, 0, 0.6);
-        padding: 40px;
+        background-color: rgba(0, 0, 0, 0.65);
+        padding: 40px 30px;
         border-radius: 15px;
         max-width: 500px;
         margin: 5% auto;
         color: white;
+        box-shadow: 0px 0px 10px rgba(0,0,0,0.5);
     }}
     .form-container h1 {{
         text-align: center;
-        color: #fff;
-        margin-bottom: 20px;
-        font-size: 2.5rem;
-    }}
-    .form-container input {{
-        margin-bottom: 15px;
+        color: white;
+        font-size: 2.4rem;
+        margin-bottom: 25px;
     }}
     </style>
 """, unsafe_allow_html=True)
 
-# Load model and encoder
+# Load model and label encoder
 @st.cache_resource
 def load_model():
     model = pickle.load(open('model.pkl', 'rb'))
@@ -56,26 +51,27 @@ def speak(text):
     engine.say(text)
     engine.runAndWait()
 
-# Centered form
-with st.container():
-    st.markdown('<div class="form-container">', unsafe_allow_html=True)
-    
-    st.image("https://i.ibb.co/yV1fVKf/farmcast-logo.png", width=100)  # Replace with your logo if needed
-    st.markdown("<h1>FARMCAST AI</h1>", unsafe_allow_html=True)
+# Render UI
+st.markdown('<div class="form-container">', unsafe_allow_html=True)
 
-    with st.form("crop_form"):
-        N = st.text_input("Nitrogen")
-        P = st.text_input("Phosphorus")
-        K = st.text_input("Potassium")
-        temperature = st.text_input("Temperature")
-        humidity = st.text_input("Humidity")
-        ph = st.text_input("pH")
-        rainfall = st.text_input("Rainfall")
-        submitted = st.form_submit_button("Predict")
+# Logo (Optional - replace URL with your own if needed)
+st.image("https://i.ibb.co/yV1fVKf/farmcast-logo.png", width=100)
 
-    st.markdown('</div>', unsafe_allow_html=True)
+st.markdown('<h1>FARMCAST AI</h1>', unsafe_allow_html=True)
 
-# Prediction & output
+with st.form("crop_form"):
+    N = st.text_input("Nitrogen")
+    P = st.text_input("Phosphorus")
+    K = st.text_input("Potassium")
+    temperature = st.text_input("Temperature")
+    humidity = st.text_input("Humidity")
+    ph = st.text_input("pH")
+    rainfall = st.text_input("Rainfall")
+    submitted = st.form_submit_button("Predict")
+
+st.markdown('</div>', unsafe_allow_html=True)
+
+# Prediction and Output
 if submitted:
     try:
         features = [float(N), float(P), float(K), float(temperature), float(humidity), float(ph), float(rainfall)]
@@ -85,6 +81,7 @@ if submitted:
         st.success(f"🌿 Recommended Crop: {crop}")
         speak(f"The recommended crop is {crop}")
 
+        # Show crop image
         image_path = glob.glob(os.path.join("images", f"{crop.lower()}.*"))
         if image_path:
             st.image(Image.open(image_path[0]), caption=crop, use_column_width=True)
