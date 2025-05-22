@@ -3,33 +3,43 @@ import numpy as np
 import pickle
 from PIL import Image
 import os
-import glob
 import pyttsx3
+import glob
 
-# Set page config
-st.set_page_config(page_title="🌾 Farmcast - Crop Predictor", page_icon="🌱")
+# Set full page layout
+st.set_page_config(layout="centered", page_title="Farmcast AI")
 
-# Inject custom CSS for background from URL
-def set_bg_from_url(image_url):
-    st.markdown(
-        f"""
-        <style>
-        .stApp {{
-            background-image: url("{image_url}");
-            background-size: cover;
-            background-attachment: fixed;
-            background-repeat: no-repeat;
-        }}
-        </style>
-        """,
-        unsafe_allow_html=True
-    )
-
-# Apply background image
+# Background image from URL
 bg_url = "https://www.canowindraphoenix.com.au/wp-content/uploads/2020/05/samll-farms.jpeg"
-set_bg_from_url(bg_url)
 
-# Load model and label encoder
+# Inject custom CSS
+st.markdown(f"""
+    <style>
+    .stApp {{
+        background: url('{bg_url}') no-repeat center center fixed;
+        background-size: cover;
+    }}
+    .form-container {{
+        background-color: rgba(0, 0, 0, 0.6);
+        padding: 40px;
+        border-radius: 15px;
+        max-width: 500px;
+        margin: 5% auto;
+        color: white;
+    }}
+    .form-container h1 {{
+        text-align: center;
+        color: #fff;
+        margin-bottom: 20px;
+        font-size: 2.5rem;
+    }}
+    .form-container input {{
+        margin-bottom: 15px;
+    }}
+    </style>
+""", unsafe_allow_html=True)
+
+# Load model and encoder
 @st.cache_resource
 def load_model():
     model = pickle.load(open('model.pkl', 'rb'))
@@ -46,41 +56,40 @@ def speak(text):
     engine.say(text)
     engine.runAndWait()
 
-# Title and instructions
-st.markdown("<h1 style='color:white;'>🌾 Farmcast - Crop Predictor</h1>", unsafe_allow_html=True)
-st.markdown("<p style='color:white;'>Enter your soil and climate parameters to get the best crop recommendation:</p>", unsafe_allow_html=True)
+# Centered form
+with st.container():
+    st.markdown('<div class="form-container">', unsafe_allow_html=True)
+    
+    st.image("https://i.ibb.co/yV1fVKf/farmcast-logo.png", width=100)  # Replace with your logo if needed
+    st.markdown("<h1>FARMCAST AI</h1>", unsafe_allow_html=True)
 
-# Input form
-with st.form("prediction_form"):
-    N = st.number_input("Nitrogen (N)", 0.0, 140.0, 50.0)
-    P = st.number_input("Phosphorous (P)", 0.0, 140.0, 50.0)
-    K = st.number_input("Potassium (K)", 0.0, 205.0, 50.0)
-    temperature = st.number_input("Temperature (°C)", 0.0, 50.0, 25.0)
-    humidity = st.number_input("Humidity (%)", 0.0, 100.0, 50.0)
-    ph = st.number_input("pH", 0.0, 14.0, 6.5)
-    rainfall = st.number_input("Rainfall (mm)", 0.0, 300.0, 100.0)
-    submitted = st.form_submit_button("🔍 Predict Crop")
+    with st.form("crop_form"):
+        N = st.text_input("Nitrogen")
+        P = st.text_input("Phosphorus")
+        K = st.text_input("Potassium")
+        temperature = st.text_input("Temperature")
+        humidity = st.text_input("Humidity")
+        ph = st.text_input("pH")
+        rainfall = st.text_input("Rainfall")
+        submitted = st.form_submit_button("Predict")
 
-# Prediction logic
+    st.markdown('</div>', unsafe_allow_html=True)
+
+# Prediction & output
 if submitted:
     try:
-        features = [N, P, K, temperature, humidity, ph, rainfall]
+        features = [float(N), float(P), float(K), float(temperature), float(humidity), float(ph), float(rainfall)]
         prediction = model.predict([features])
-        crop = label_encoder.inverse_transform(prediction)[0]
-        crop_name = crop.capitalize()
+        crop = label_encoder.inverse_transform(prediction)[0].capitalize()
 
-        st.success(f"✅ Recommended Crop: {crop_name}")
-        speak(f"The recommended crop is {crop_name}")
+        st.success(f"🌿 Recommended Crop: {crop}")
+        speak(f"The recommended crop is {crop}")
 
-        # Show crop image
-        image_folder = "images"
-        image_pattern = os.path.join(image_folder, f"{crop.lower()}.*")
-        image_files = glob.glob(image_pattern)
-
-        if image_files:
-            img = Image.open(image_files[0])
-            st.image(img, caption=crop_name, use_column_width=True)
+        image_path = glob.glob(os.path.join("images", f"{crop.lower()}.*"))
+        if image_path:
+            st.image(Image.open(image_path[0]), caption=crop, use_column_width=True)
         else:
-            st.info("ℹ️ No image available for this crop.")
+            st.warning("No image available for this crop.")
+
     except Exception as e:
         st.error(f"❌ Error: {e}")
