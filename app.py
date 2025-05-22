@@ -1,12 +1,13 @@
 from flask import Flask, render_template, request
 import numpy as np
 import pickle
+import os
 
 app = Flask(__name__)
 
 # Load model and label encoder
-model = pickle.load(open('/content/model.pkl', 'rb'))
-label_encoder = pickle.load(open('/content/label_encoder.pkl', 'rb'))
+model = pickle.load(open('model.pkl', 'rb'))
+label_encoder = pickle.load(open('label_encoder.pkl', 'rb'))
 
 @app.route('/')
 def home():
@@ -15,6 +16,7 @@ def home():
 @app.route('/predict', methods=['POST'])
 def predict():
     try:
+        # Extract features from form
         features = [
             float(request.form['N']),
             float(request.form['P']),
@@ -25,14 +27,17 @@ def predict():
             float(request.form['rainfall'])
         ]
 
+        # Predict crop
         prediction = model.predict([features])
         crop = label_encoder.inverse_transform(prediction)[0]
+        
+        # Crop image (assumed to be in /static/images/)
         image_filename = f"{crop.lower()}.jpg"
 
-        return render_template('result.html', crop=crop, image=image_filename)
-    
-    except Exception as e:
-        return f"Error: {e}"
+        return render_template('result.html', crop=crop, image=f"images/{image_filename}")
 
-if __name__ == '_main_':
+    except Exception as e:
+        return render_template('error.html', message=str(e))
+
+if __name__ == '__main__':
     app.run(debug=True)
