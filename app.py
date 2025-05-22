@@ -1,37 +1,38 @@
 from flask import Flask, render_template, request
-import pickle
 import numpy as np
-from keras.preprocessing import image
-import io
-import os  # Add this for path operations
+import pickle
 
 app = Flask(__name__)
 
-# Assuming your model is saved as 'crop_recommendation_model.pkl'
-model_path = os.path.join(app.root_path, 'crop_recommendation_model.pkl')  # Get the model path
-with open(model_path, 'rb') as f:
-    model = pickle.load(f)
+# Load model and label encoder
+model = pickle.load(open('model.pkl', 'rb'))
+label_encoder = pickle.load(open('label_encoder.pkl', 'rb'))
 
 @app.route('/')
-def index():
+def home():
     return render_template('index.html')
 
 @app.route('/predict', methods=['POST'])
 def predict():
-    if request.method == 'POST':
-        file = request.files['image']
-        img_data = file.read()
-        img = image.load_img(io.BytesIO(img_data), target_size=(64, 64))
+    try:
+        features = [
+            float(request.form['N']),
+            float(request.form['P']),
+            float(request.form['K']),
+            float(request.form['temperature']),
+            float(request.form['humidity']),
+            float(request.form['ph']),
+            float(request.form['rainfall'])
+        ]
 
-        img_array = image.img_to_array(img)
-        img_array = np.expand_dims(img_array, axis=0)
-        img_array /= 255.0
+        prediction = model.predict([features])
+        crop = label_encoder.inverse_transform(prediction)[0]
+        image_filename = f"{crop.lower()}.jpg"
 
-        prediction = model.predict(img_array)
-        # Process prediction and return result
-        # ...
-        return "Prediction result"  # Replace with actual prediction handling
+        return render_template('result.html', crop=crop, image=image_filename)
+    
+    except Exception as e:
+        return f"Error: {e}"
 
 if __name__ == '__main__':
     app.run(debug=True)
-    
