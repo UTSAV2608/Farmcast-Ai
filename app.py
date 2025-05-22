@@ -7,25 +7,27 @@ import glob
 import pyttsx3
 
 # Set page config
-st.set_page_config(page_title=" FarmCast Logo FARMCAST AI", page_icon="🌱")
+st.set_page_config(page_title="🌾 Farmcast - Crop Predictor", page_icon="🌱")
 
-# Background Image Setup using Custom CSS
-def set_background(image_file):
-    with open(image_file, "rb") as img_file:
-        encoded = img_file.read()
-    css = f"""
-    <style>
-    .stApp {{
-        background-image: url("data:https://www.canowindraphoenix.com.au/wp-content/uploads/2020/05/samll-farms.jpeg;base64,{encoded.hx()}");
-        background-size: cover;
-        background-attachment: fixed;
-    }}
-    </style>
-    """
-    st.markdown(css, unsafe_allow_html=True)
+# Inject custom CSS for background from URL
+def set_bg_from_url(image_url):
+    st.markdown(
+        f"""
+        <style>
+        .stApp {{
+            background-image: url("{image_url}");
+            background-size: cover;
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+        }}
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
 
-# Apply the background image (replace 'background.jpg' with your image)
-set_background("https://www.canowindraphoenix.com.au/wp-content/uploads/2020/05/samll-farms.jpeg")
+# Apply background image
+bg_url = "https://www.canowindraphoenix.com.au/wp-content/uploads/2020/05/samll-farms.jpeg"
+set_bg_from_url(bg_url)
 
 # Load model and label encoder
 @st.cache_resource
@@ -36,7 +38,7 @@ def load_model():
 
 model, label_encoder = load_model()
 
-# Initialize TTS engine
+# TTS function
 def speak(text):
     engine = pyttsx3.init()
     engine.setProperty('rate', 150)
@@ -44,11 +46,11 @@ def speak(text):
     engine.say(text)
     engine.runAndWait()
 
-# UI Content
+# Title and instructions
 st.markdown("<h1 style='color:white;'>🌾 Farmcast - Crop Predictor</h1>", unsafe_allow_html=True)
-st.markdown("<p style='color:white;'>Enter the values below to get the best crop recommendation:</p>", unsafe_allow_html=True)
+st.markdown("<p style='color:white;'>Enter your soil and climate parameters to get the best crop recommendation:</p>", unsafe_allow_html=True)
 
-# Input Form
+# Input form
 with st.form("prediction_form"):
     N = st.number_input("Nitrogen (N)", 0.0, 140.0, 50.0)
     P = st.number_input("Phosphorous (P)", 0.0, 140.0, 50.0)
@@ -59,7 +61,7 @@ with st.form("prediction_form"):
     rainfall = st.number_input("Rainfall (mm)", 0.0, 300.0, 100.0)
     submitted = st.form_submit_button("🔍 Predict Crop")
 
-# Prediction Logic
+# Prediction logic
 if submitted:
     try:
         features = [N, P, K, temperature, humidity, ph, rainfall]
@@ -70,7 +72,7 @@ if submitted:
         st.success(f"✅ Recommended Crop: {crop_name}")
         speak(f"The recommended crop is {crop_name}")
 
-        # Show image if exists
+        # Show crop image
         image_folder = "images"
         image_pattern = os.path.join(image_folder, f"{crop.lower()}.*")
         image_files = glob.glob(image_pattern)
