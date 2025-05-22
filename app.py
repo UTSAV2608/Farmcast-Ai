@@ -25,7 +25,7 @@ def set_background(image_file):
     st.markdown(css, unsafe_allow_html=True)
 
 # Apply the background image (replace 'background.jpg' with your image)
-set_background("background.jpg")
+set_background("https://www.canowindraphoenix.com.au/wp-content/uploads/2020/05/samll-farms.jpeg")
 
 # Load model and label encoder
 @st.cache_resource
