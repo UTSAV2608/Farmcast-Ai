@@ -2,3 +2,4 @@ streamlit
 numpy
 pillow
 scikit-learn
+gTTS
