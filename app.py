@@ -4,7 +4,11 @@ import pickle
 from PIL import Image
 import os
 import glob
+# Title
+st.set_page_config(page_title="Crop Predictor", page_icon="🌱")
+st.title("🌾 Farmcast - Crop Prediction")
 
+st.write("Enter the following parameters to predict the suitable crop:")
 # Load model and label encoder
 @st.cache_resource
 def load_model():
@@ -14,11 +18,7 @@ def load_model():
 
 model, label_encoder = load_model()
 
-# Title
-st.set_page_config(page_title="Crop Predictor", page_icon="🌱")
-st.title("🌾 Farmcast - Crop Prediction")
 
-st.write("Enter the following parameters to predict the suitable crop:")
 
 # Input form to mimic HTML form
 with st.form("prediction_form"):
