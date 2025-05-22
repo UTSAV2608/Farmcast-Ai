@@ -1,5 +1,5 @@
 streamlit
 numpy
-pillow
 scikit-learn
-gTTS
+pillow
+pyttsx3
