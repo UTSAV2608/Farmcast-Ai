@@ -16,7 +16,7 @@ def set_background(image_file):
     css = f"""
     <style>
     .stApp {{
-        background-image: url("data:https://www.canowindraphoenix.com.au/wp-content/uploads/2020/05/samll-farms.jpeg;base64,{encoded.hx(}");
+        background-image: url("data:https://www.canowindraphoenix.com.au/wp-content/uploads/2020/05/samll-farms.jpeg;base64,{encoded.hx()}");
         background-size: cover;
         background-attachment: fixed;
     }}
